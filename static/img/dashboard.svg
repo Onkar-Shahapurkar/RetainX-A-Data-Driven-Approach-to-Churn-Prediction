@@ -1,0 +1,109 @@
+<svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Defs for gradients and patterns -->
+  <defs>
+    <!-- Main background gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5766e2" />
+      <stop offset="100%" stop-color="#e254a0" />
+    </linearGradient>
+    
+    <!-- Retention orbit gradient -->
+    <linearGradient id="orbitGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5766e2" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#5766e2" stop-opacity="0.1" />
+    </linearGradient>
+    
+    <!-- Churn path gradient -->
+    <linearGradient id="churnGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e254a0" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#e254a0" stop-opacity="0.8" />
+    </linearGradient>
+    
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  
+  <!-- Main background -->
+  <rect width="600" height="400" rx="12" ry="12" fill="#1a1a2e" />
+  
+  <!-- Abstract background elements -->
+  <circle cx="300" cy="200" r="250" fill="url(#bgGradient)" opacity="0.05" />
+  <circle cx="300" cy="200" r="200" fill="url(#bgGradient)" opacity="0.03" />
+  <circle cx="300" cy="200" r="150" fill="url(#bgGradient)" opacity="0.04" />
+  
+  <!-- Grid lines -->
+  <g stroke="#ffffff" stroke-opacity="0.05" stroke-width="1">
+    <line x1="0" y1="100" x2="600" y2="100" />
+    <line x1="0" y1="200" x2="600" y2="200" />
+    <line x1="0" y1="300" x2="600" y2="300" />
+    <line x1="150" y1="0" x2="150" y2="400" />
+    <line x1="300" y1="0" x2="300" y2="400" />
+    <line x1="450" y1="0" x2="450" y2="400" />
+  </g>
+  
+  <!-- Central company/brand element -->
+  <circle cx="300" cy="200" r="60" fill="#ffffff" opacity="0.9" />
+  <path d="M290,170 L290,230 L330,200 Z" fill="#5766e2" /> <!-- Play button shape symbolizing prediction -->
+  
+  <!-- Retention orbit paths -->
+  <g fill="none" stroke-opacity="0.3">
+    <ellipse cx="300" cy="200" rx="100" ry="90" stroke="url(#orbitGradient)" stroke-width="12" transform="rotate(15, 300, 200)" />
+    <ellipse cx="300" cy="200" rx="110" ry="100" stroke="url(#orbitGradient)" stroke-width="8" transform="rotate(35, 300, 200)" />
+    <ellipse cx="300" cy="200" rx="120" ry="95" stroke="url(#orbitGradient)" stroke-width="5" transform="rotate(65, 300, 200)" />
+  </g>
+  
+  <!-- Customers in retention orbits -->
+  <g fill="#5766e2">
+    <!-- Inner orbit customers -->
+    <circle cx="365" cy="155" r="12" opacity="0.9" filter="url(#glow)" />
+    <circle cx="250" cy="160" r="10" opacity="0.9" filter="url(#glow)" />
+    <circle cx="310" cy="285" r="11" opacity="0.9" filter="url(#glow)" />
+    
+    <!-- Middle orbit customers -->
+    <circle cx="390" cy="180" r="9" opacity="0.8" filter="url(#glow)" />
+    <circle cx="230" cy="245" r="8" opacity="0.8" filter="url(#glow)" />
+    <circle cx="275" cy="110" r="10" opacity="0.8" filter="url(#glow)" />
+    
+    <!-- Outer orbit customers -->
+    <circle cx="415" cy="220" r="7" opacity="0.7" filter="url(#glow)" />
+    <circle cx="205" cy="175" r="6" opacity="0.7" filter="url(#glow)" />
+    <circle cx="330" cy="100" r="8" opacity="0.7" filter="url(#glow)" />
+    <circle cx="290" cy="300" r="7" opacity="0.7" filter="url(#glow)" />
+  </g>
+  
+  <!-- Churn paths -->
+  <g fill="none">
+    <path d="M310,120 C370,130 450,160 520,100" stroke="url(#churnGradient)" stroke-width="8" opacity="0.7" />
+    <path d="M345,270 C390,280 450,260 490,300" stroke="url(#churnGradient)" stroke-width="6" opacity="0.7" />
+    <path d="M220,210 C180,250 160,290 110,270" stroke="url(#churnGradient)" stroke-width="7" opacity="0.7" />
+  </g>
+  
+  <!-- Churning customers -->
+  <g fill="#e254a0">
+    <circle cx="520" cy="100" r="12" opacity="0.9" filter="url(#glow)" />
+    <circle cx="490" cy="300" r="10" opacity="0.9" filter="url(#glow)" />
+    <circle cx="110" cy="270" r="11" opacity="0.9" filter="url(#glow)" />
+  </g>
+  
+  <!-- Subtle stars/data points in background -->
+  <g fill="#ffffff">
+    <circle cx="100" cy="100" r="1" opacity="0.6" />
+    <circle cx="150" cy="80" r="1.5" opacity="0.5" />
+    <circle cx="200" cy="50" r="1" opacity="0.7" />
+    <circle cx="450" cy="70" r="1.2" opacity="0.6" />
+    <circle cx="480" cy="150" r="1" opacity="0.5" />
+    <circle cx="520" cy="200" r="1.5" opacity="0.7" />
+    <circle cx="80" cy="250" r="1" opacity="0.6" />
+    <circle cx="120" cy="320" r="1.2" opacity="0.5" />
+    <circle cx="350" cy="350" r="1" opacity="0.7" />
+    <circle cx="500" cy="350" r="1.5" opacity="0.6" />
+    <circle cx="550" cy="280" r="1" opacity="0.5" />
+  </g>
+  
+  <!-- Title text -->
+  <text x="300" y="50" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#ffffff">RetainX Predictor</text>
+  <text x="300" y="75" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#ffffff" opacity="0.8">AI-Powered Customer Retention</text>
+</svg>

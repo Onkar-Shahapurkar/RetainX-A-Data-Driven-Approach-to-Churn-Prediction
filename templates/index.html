@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecom Customer Churn Predictor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #10B981;
+            --danger-color: #EF4444;
+            --warning-color: #F59E0B;
+            --background-color: #F9FAFB;
+            --card-color: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+        }
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #4338CA;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+        .form-input {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        .form-select {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        .loader {
+            border-top-color: var(--primary-color);
+            animation: spinner 1.5s linear infinite;
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .navbar-item {
+            position: relative;
+        }
+        .navbar-item::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+        .navbar-item:hover::after,
+        .navbar-item.active::after {
+            width: 100%;
+        }
+        .navbar-item.active {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .feature-highlight {
+            transition: all 0.3s ease;
+        }
+        .feature-highlight:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md py-4 px-8 fixed w-full z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-chart-line text-indigo-600 text-3xl mr-3"></i>
+                <span class="text-xl font-bold text-gray-800">RetainX Predictor</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="navbar-item active">Home</a>
+                <a href="#predictor" class="navbar-item">Predictor</a>
+                <a href="#analytics" class="navbar-item">Analytics</a>
+                <a href="#insights" class="navbar-item">Insights</a>
+                <a href="#about" class="navbar-item">About</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-4 py-2 border-t">
+            <a href="#home" class="block py-2 px-4 text-sm hover:bg-gray-100">Home</a>
+            <a href="#predictor" class="block py-2 px-4 text-sm hover:bg-gray-100">Predictor</a>
+            <a href="#analytics" class="block py-2 px-4 text-sm hover:bg-gray-100">Analytics</a>
+            <a href="#insights" class="block py-2 px-4 text-sm hover:bg-gray-100">Insights</a>
+            <a href="#about" class="block py-2 px-4 text-sm hover:bg-gray-100">About</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-28 pb-20 px-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+        <div class="container mx-auto flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 text-white mb-8 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">Predict Customer Churn with AI</h1>
+                <p class="text-xl mb-8">Leverage advanced machine learning to identify customers at risk of leaving your telecom service.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#predictor" class="btn-primary py-3 px-8 rounded-lg font-medium text-center">Try Predictor</a>
+                    <a href="#analytics" class="bg-white text-indigo-600 py-3 px-8 rounded-lg font-medium text-center hover:bg-gray-100 transition">View Analytics</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <img src="{{ url_for('static', filename='img/dashboard.svg') }}" alt="Customer Churn Analytics" class="rounded-xl shadow-2xl max-w-full h-auto">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 px-8 bg-white">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">Key Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-6 feature-highlight">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-brain text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">AI-Powered Predictions</h3>
+                    <p class="text-gray-600">Our model predicts customer churn with high accuracy using gradient boosting techniques.</p>
+                </div>
+                <div class="card p-6 feature-highlight">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-chart-pie text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Advanced Analytics</h3>
+                    <p class="text-gray-600">Gain valuable insights through interactive data visualizations and comprehensive reports.</p>
+                </div>
+                <div class="card p-6 feature-highlight">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-users text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Customer Retention</h3>
+                    <p class="text-gray-600">Identify at-risk customers early and implement targeted retention strategies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Predictor Section -->
+    <section id="predictor" class="py-16 px-8 bg-gray-50">
+        <div class="container mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Customer Churn Predictor</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Enter customer information to predict the likelihood of churn. Our AI model will analyze the data and provide a risk assessment.</p>
+            </div>
+            <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-8">
+                    <form id="prediction-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="dependents">Dependents</label>
+                            <select id="dependents" name="dependents" class="form-select block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="tenure">Tenure (Months)</label>
+                            <input type="number" id="tenure" name="tenure" min="0" class="form-input block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none" placeholder="e.g. 24">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="onlineSecurity">Online Security</label>
+                            <select id="onlineSecurity" name="onlineSecurity" class="form-select block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="onlineBackup">Online Backup</label>
+                            <select id="onlineBackup" name="onlineBackup" class="form-select block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="deviceProtection">Device Protection</label>
+                            <select id="deviceProtection" name="deviceProtection" class="form-select block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="techSupport">Tech Support</label>
+                            <select id="techSupport" name="techSupport" class="form-select block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="contract">Contract</label>
+                            <select id="contract" name="contract" class="form-select block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none">
+                                <option value="Month-to-month">Month-to-month</option>
+                                <option value="One year">One year</option>
+                                <option value="Two year">Two year</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="paperlessBilling">Paperless Billing</label>
+                            <select id="paperlessBilling" name="paperlessBilling" class="form-select block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="monthlyCharges">Monthly Charges ($)</label>
+                            <input type="number" id="monthlyCharges" name="monthlyCharges" min="0" step="0.01" class="form-input block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none" placeholder="e.g. 89.85">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2" for="totalCharges">Total Charges ($)</label>
+                            <input type="number" id="totalCharges" name="totalCharges" min="0" step="0.01" class="form-input block w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none" placeholder="e.g. 1889.50">
+                        </div>
+                        <div class="md:col-span-2 flex justify-center mt-6">
+                            <button type="submit" class="btn-primary py-3 px-8 rounded-lg font-medium flex items-center">
+                                <i class="fas fa-calculator mr-2"></i>
+                                Predict Churn
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Prediction Result (Initially Hidden) -->
+            <div id="prediction-result" class="max-w-4xl mx-auto mt-8 hidden">
+                <div id="result-success" class="bg-white rounded-xl shadow-md overflow-hidden p-8">
+                    <h3 class="text-2xl font-bold mb-6 text-center">Prediction Result</h3>
+                    <div class="flex flex-col items-center mb-6">
+                        <div id="gauge-container" class="w-60 h-60 mb-4"></div>
+                        <div id="prediction-label" class="text-2xl font-bold"></div>
+                        <div id="confidence-label" class="text-lg text-gray-600"></div>
+                    </div>
+                    <div id="risk-factors" class="mt-8">
+                        <h4 class="text-xl font-semibold mb-4">Key Risk Factors</h4>
+                        <ul id="factors-list" class="list-disc pl-6 space-y-2 text-gray-700"></ul>
+                    </div>
+                    <div class="mt-8 flex justify-center">
+                        <button id="reset-prediction" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-6 rounded-lg font-medium transition">
+                            <i class="fas fa-redo mr-2"></i>
+                            New Prediction
+                        </button>
+                        <button id="download-results" class="btn-primary py-2 px-6 rounded-lg font-medium transition">
+                            <i class="fas fa-file-download mr-2"></i>
+                            Download Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section id="analytics" class="py-16 px-8 bg-white">
+        <div class="container mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Customer Churn Analytics</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Explore key metrics and visualizations related to customer churn in our telecom dataset.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Churn Distribution</h3>
+                    <div class="aspect-w-16 aspect-h-9">
+                        <canvas id="churnDistribution"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Churn by Contract Type</h3>
+                    <div class="aspect-w-16 aspect-h-9">
+                        <canvas id="contractChurn"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Monthly Charges vs. Churn</h3>
+                    <div class="aspect-w-16 aspect-h-9">
+                        <canvas id="chargesChurn"></canvas>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-4">Tenure vs. Churn Rate</h3>
+                    <div class="aspect-w-16 aspect-h-9">
+                        <canvas id="tenureChurn"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12">
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-6">Key Performance Metrics</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-indigo-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-medium text-indigo-800 mb-2">Accuracy</h4>
+                            <p class="text-3xl font-bold text-indigo-600">84.5%</p>
+                            <p class="text-sm text-indigo-500 mt-2">Model prediction accuracy</p>
+                        </div>
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-medium text-green-800 mb-2">Precision</h4>
+                            <p class="text-3xl font-bold text-green-600">82.3%</p>
+                            <p class="text-sm text-green-500 mt-2">True positive rate</p>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-medium text-blue-800 mb-2">Recall</h4>
+                            <p class="text-3xl font-bold text-blue-600">80.1%</p>
+                            <p class="text-sm text-blue-500 mt-2">Sensitivity measure</p>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-lg">
+                            <h4 class="text-lg font-medium text-purple-800 mb-2">F1 Score</h4>
+                            <p class="text-3xl font-bold text-purple-600">81.2%</p>
+                            <p class="text-sm text-purple-500 mt-2">Harmonic mean of precision & recall</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Insights Section -->
+    <section id="insights" class="py-16 px-8 bg-gray-50">
+        <div class="container mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Churn Insights</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Key findings and actionable insights from our customer churn analysis.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="card p-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-file-contract text-indigo-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Contract Length Impact</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Month-to-month contracts have a 42% churn rate compared to just 8% for two-year contracts.</p>
+                    <div class="bg-indigo-50 p-4 rounded-lg">
+                        <p class="text-sm text-indigo-700 font-medium">Recommendation: Incentivize longer contract commitments with special offers and discounts.</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-green-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-shield-alt text-green-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Security Services</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Customers without online security and tech support are 3x more likely to churn.</p>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <p class="text-sm text-green-700 font-medium">Recommendation: Offer free trials of security services to high-risk customers.</p>
+                    </div>
+                </div>
+                <div class="card p-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-dollar-sign text-blue-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold">Pricing Sensitivity</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Higher monthly charges correlate strongly with increased churn, especially for new customers.</p>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <p class="text-sm text-blue-700 font-medium">Recommendation: Create tiered pricing plans with gradual increases for the first year.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12">
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-6">Financial Impact of Churn</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">With 5% Reduction</th>
+                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Savings</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Annual Churn Rate</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">26.5%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">21.5%</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">-5.0%</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Annual Revenue Loss</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$2,847,600</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$2,310,200</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">$537,400</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Customers Lost</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1,869</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1,515</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">354</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Acquisition Cost</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$934,500</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$757,500</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-500">$177,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 px-8 bg-white">
+        <div class="container mx-auto">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl font-bold mb-6">About This Project</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    This customer churn prediction tool was developed using machine learning techniques to help telecom companies identify and retain at-risk customers. The model was trained on historical customer data and uses gradient boosting algorithms to predict churn probability.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Model Details</h3>
+                        <ul class="list-disc pl-6 space-y-2 text-gray-700">
+                            <li>Gradient Boosting Classifier</li>
+                            <li>SMOTEENN for imbalanced data handling</li>
+                            <li>Feature selection with SelectKBest</li>
+                            <li>Hyperparameter tuning via RandomizedSearchCV</li>
+                            <li>Model accuracy: 84.5%</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Technologies Used</h3>
+                        <ul class="list-disc pl-6 space-y-2 text-gray-700">
+                            <li>Python & Scikit-learn for ML model</li>
+                            <li>Flask for backend API</li>
+                            <li>HTML, CSS & JavaScript for frontend</li>
+                            <li>Chart.js for data visualization</li>
+                            <li>Tailwind CSS for styling</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 px-8">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-chart-line text-indigo-400 text-2xl mr-3"></i>
+                        <span class="text-lg font-bold">TelcoChurn Predictor</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">Advanced AI solutions for telecom customer retention.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="#predictor" class="text-gray-400 hover:text-white transition">Predictor</a></li>
+                        <li><a href="#analytics" class="text-gray-400 hover:text-white transition">Analytics</a></li>
+                        <li><a href="#insights" class="text-gray-400 hover:text-white transition">Insights</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Documentation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">API Reference</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Case Studies</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-3"></i>
+                            <span>info@telcochurn.ai</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-3"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3"></i>
+                            <span>123 AI Avenue, San Francisco, CA 94107</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">&copy; 2025 TelcoChurn Predictor. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Toggle mobile menu if it's open
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+
+        // Highlight active navbar item based on scroll position
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.navbar-item');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop && pageYOffset < sectionTop + sectionHeight) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === `#${current}`) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart 1: Churn Distribution
+            const churnCtx = document.getElementById('churnDistribution').getContext('2d');
+            const churnChart = new Chart(churnCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Retained', 'Churned'],
+                    datasets: [{
+                        data: [73.5, 26.5],
+                        backgroundColor: ['#10B981', '#EF4444'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Contract Type vs Churn
+            const contractCtx = document.getElementById('contractChurn').getContext('2d');
+            const contractChart = new Chart(contractCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Month-to-month', 'One year', 'Two year'],
+                    datasets: [{
+                        label: 'Churn Rate (%)',
+                        data: [42.7, 11.3, 2.8],
+                        backgroundColor: '#4F46E5',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 50,
+                            title: {
+                                display: true,
+                                text: 'Churn Rate (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Contract Type'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 3: Monthly Charges Distribution
+            const chargesCtx = document.getElementById('chargesChurn').getContext('2d');
+            const chargesChart = new Chart(chargesCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Retained Customers',
+                        data: generateScatterData(100, 30, 90, 0.2),
+                        backgroundColor: '#10B981',
+                        pointRadius: 4,
+                    }, {
+                        label: 'Churned Customers',
+                        data: generateScatterData(60, 60, 110, 0.2),
+                        backgroundColor: '#EF4444',
+                        pointRadius: 4,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Monthly Charges ($)'
+                            },
+                            min: 0,
+                            max: 120
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            },
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // Chart 4: Tenure vs Churn Rate
+            const tenureCtx = document.getElementById('tenureChurn').getContext('2d');
+            const tenureChart = new Chart(tenureCtx, {
+                type: 'line',
+                data: {
+                    labels: ['0-6', '7-12', '13-18', '19-24', '25-36', '37-48', '49-60', '61+'],
+                    datasets: [{
+                        label: 'Churn Rate (%)',
+                        data: [41.7, 35.2, 28.4, 22.1, 15.7, 10.8, 7.5, 5.2],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 50,
+                            title: {
+                                display: true,
+                                text: 'Churn Rate (%)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tenure (Months)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Helper function to generate scatter plot data
+            function generateScatterData(n, mean, stdDev, scale) {
+                const data = [];
+                for (let i = 0; i < n; i++) {
+                    // Box-Muller transform for normal distribution
+                    const u1 = Math.random();
+                    const u2 = Math.random();
+                    const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+                    const value = mean + z0 * stdDev;
+                    
+                    if (value > 0 && value < 120) {
+                        data.push({
+                            x: value,
+                            y: scale * Math.exp(-(value - mean) * (value - mean) / (2 * stdDev * stdDev))
+                        });
+                    }
+                }
+                return data;
+            }
+        });
+
+        // Prediction Form Handling
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            document.getElementById('prediction-form').querySelector('button[type="submit"]').innerHTML = `
+                <div class="loader mr-2 w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+                Processing...
+            `;
+            
+            // Simulate API call (would be replaced with actual fetch to backend)
+            setTimeout(function() {
+                // Get form data
+                const formData = new FormData(document.getElementById('prediction-form'));
+                const data = Object.fromEntries(formData.entries());
+                
+                // Simple risk calculation for demo purposes
+                let riskScore = 0;
+                
+                if (data.contract === 'Month-to-month') riskScore += 30;
+                if (data.onlineSecurity === 'No') riskScore += 15;
+                if (data.techSupport === 'No') riskScore += 15;
+                if (data.tenure < 12) riskScore += 20;
+                if (parseFloat(data.monthlyCharges) > 70) riskScore += 20;
+                
+                // Clamp between 0-100
+                riskScore = Math.min(100, Math.max(0, riskScore));
+                
+                // Determine if customer will churn based on threshold
+                const willChurn = riskScore > 60;
+                
+                // Show result
+                document.getElementById('prediction-form').querySelector('button[type="submit"]').innerHTML = `
+                    <i class="fas fa-calculator mr-2"></i>
+                    Predict Churn
+                `;
+                
+                // Show prediction result
+                document.getElementById('prediction-result').classList.remove('hidden');
+                
+                // Update prediction label
+                document.getElementById('prediction-label').innerText = willChurn ? 'High Risk of Churn' : 'Low Risk of Churn';
+                document.getElementById('prediction-label').className = willChurn ? 'text-2xl font-bold text-red-600' : 'text-2xl font-bold text-green-600';
+                
+                // Update confidence label
+                document.getElementById('confidence-label').innerText = `Confidence: ${riskScore}%`;
+                
+                // Create gauge chart
+                const gaugeElement = document.getElementById('gauge-container');
+                gaugeElement.innerHTML = ''; // Clear previous chart if any
+                
+                // Create gauge chart with Chart.js
+                const gaugeCanvas = document.createElement('canvas');
+                gaugeCanvas.id = 'gauge-chart';
+                gaugeElement.appendChild(gaugeCanvas);
+                
+                new Chart(gaugeCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [riskScore, 100 - riskScore],
+                            backgroundColor: [
+                                getGradientColor(riskScore),
+                                '#E5E7EB'
+                            ],
+                            circumference: 180,
+                            rotation: 270
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '75%',
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        }
+                    }
+                });
+                
+                // Add needle to gauge
+                const needleValue = riskScore / 100;
+                const needleAngle = needleValue * Math.PI;
+                const needleLength = gaugeCanvas.width * 0.35;
+                const centerX = gaugeCanvas.width / 2;
+                const centerY = gaugeCanvas.height * 0.9;
+                
+                const ctx = gaugeCanvas.getContext('2d');
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(
+                    centerX + needleLength * Math.cos(needleAngle),
+                    centerY - needleLength * Math.sin(needleAngle)
+                );
+                ctx.strokeStyle = '#374151';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Add center dot
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = '#374151';
+                ctx.fill();
+                
+                // Add percentage text
+                ctx.font = 'bold 24px Arial';
+                ctx.fillStyle = getTextColor(riskScore);
+                ctx.textAlign = 'center';
+                ctx.fillText(`${riskScore}%`, centerX, centerY - 30);
+                
+                // Show risk factors
+                const factorsList = document.getElementById('factors-list');
+                factorsList.innerHTML = '';
+                
+                const factors = [];
+                
+                if (data.contract === 'Month-to-month') {
+                    factors.push('Month-to-month contract has higher churn risk');
+                }
+                if (data.onlineSecurity === 'No') {
+                    factors.push('No online security service increases vulnerability');
+                }
+                if (data.techSupport === 'No') {
+                    factors.push('Lack of tech support correlates with dissatisfaction');
+                }
+                if (data.tenure < 12) {
+                    factors.push('New customers (< 1 year) have higher churn rates');
+                }
+                if (parseFloat(data.monthlyCharges) > 70) {
+                    factors.push('Higher monthly charges increase price sensitivity');
+                }
+                
+                // If no specific risk factors, add generic message
+                if (factors.length === 0) {
+                    factors.push('Customer has a well-balanced profile with no standout risk factors');
+                }
+                
+                // Add factors to list
+                factors.forEach(factor => {
+                    const li = document.createElement('li');
+                    li.textContent = factor;
+                    factorsList.appendChild(li);
+                });
+                
+                // Scroll to result
+                document.getElementById('prediction-result').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 1500); // Simulate processing time
+        });
+        
+        // Reset prediction
+        document.getElementById('reset-prediction').addEventListener('click', function() {
+            document.getElementById('prediction-result').classList.add('hidden');
+            document.getElementById('prediction-form').reset();
+            
+            // Scroll to predictor section
+            document.getElementById('predictor').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
+        
+        // Helper function to get gradient color based on score
+        function getGradientColor(score) {
+            if (score < 20) return '#10B981'; // Green
+            if (score < 40) return '#16A34A'; // Dark green
+            if (score < 60) return '#F59E0B'; // Amber
+            if (score < 80) return '#F97316'; // Orange
+            return '#EF4444'; // Red
+        }
+        
+        // Helper function to get text color based on score
+        function getTextColor(score) {
+            if (score < 40) return '#10B981'; // Green
+            if (score < 60) return '#F59E0B'; // Amber
+            return '#EF4444'; // Red
+        }
+
+        // Download PDF results
+        document.getElementById('download-results').addEventListener('click', function() {
+        // Show loading state
+        const downloadBtn = document.getElementById('download-results');
+        const originalContent = downloadBtn.innerHTML;
+        downloadBtn.innerHTML = `
+            <div class="loader mr-2 w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin"></div>
+            Generating PDF...
+        `;
+        
+        // Get form data
+        const formData = new FormData(document.getElementById('prediction-form'));
+        const data = Object.fromEntries(formData.entries());
+        
+        // Get prediction result data
+        const predictionLabel = document.getElementById('prediction-label').innerText;
+        const confidenceLabel = document.getElementById('confidence-label').innerText;
+        const confidenceValue = parseFloat(confidenceLabel.match(/\d+(\.\d+)?/)[0]);
+        
+        // Get risk factors
+        const riskFactorElements = document.querySelectorAll('#factors-list li');
+        const riskFactors = Array.from(riskFactorElements).map(el => el.textContent);
+        
+        // Create request payload
+        const payload = {
+            customer_data: data,
+            prediction_result: {
+                prediction: predictionLabel,
+                confidence: confidenceValue,
+                risk_factors: riskFactors
+            }
+        };
+        
+        // Send request to server to generate PDF
+        fetch('/generate-pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'ChurnPrediction_Report.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Restore button state
+            downloadBtn.innerHTML = originalContent;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            downloadBtn.innerHTML = originalContent;
+            alert('Error generating PDF. Please try again.');
+        });
+    });
+
+    </script>
+</body>
+</html>
