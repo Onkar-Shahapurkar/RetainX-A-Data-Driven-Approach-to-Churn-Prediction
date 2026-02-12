@@ -14,21 +14,21 @@ production-style application.
 
 ``` mermaid
 flowchart TD
-    A[Raw Dataset - Telco Customer Churn CSV] --> B[Data Cleaning & Preprocessing]
-    B --> C[Feature Engineering & Encoding]
-    C --> D[Model Training - Scikit-learn / XGBoost]
-    D --> E[Model Serialization - Model.sav]
+    A["Raw Dataset - Telco Customer Churn CSV"] --> B["Data Cleaning and Preprocessing"]
+    B --> C["Feature Engineering and Encoding"]
+    C --> D["Model Training using Scikit Learn or XGBoost"]
+    D --> E["Model Serialization - Model.sav"]
 
-    E --> F[Flask Backend API]
-    F --> G[/predict Endpoint]
-    F --> H[/analytics Endpoint]
-    F --> I[/generate-pdf Endpoint]
+    E --> F["Flask Backend API"]
+    F --> G["Predict Endpoint"]
+    F --> H["Analytics Endpoint"]
+    F --> I["Generate PDF Endpoint"]
 
-    G --> J[Churn Prediction + Probability]
-    H --> K[Business Analytics Dashboard Data]
-    I --> L[Automated PDF Report Generation]
+    G --> J["Churn Prediction and Probability Output"]
+    H --> K["Business Analytics Dashboard Data"]
+    I --> L["Automated PDF Report Generation"]
 
-    F --> M[Frontend UI - HTML/CSS/JS]
+    F --> M["Frontend UI - HTML CSS JavaScript"]
 ```
 
 ------------------------------------------------------------------------
